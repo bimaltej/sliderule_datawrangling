@@ -1,0 +1,90 @@
+---
+title: "Data Wrangling_Tutorial"
+author: "Bimal"
+date: "December 5, 2015"
+output: html_document
+---
+        
+Data Wranlging :
+        
+Reshape:
+        
+Pew Dataset
+        
+```{r}
+pew <- read.delim(
+        file = "http://stat405.had.co.nz/data/pew.txt",
+        header = TRUE,
+        stringsAsFactors = FALSE,
+        check.names = FALSE)
+head(pew)
+tail(pew)
+summary(pew)
+```
+        
+Making pew data tidy using melt fucntion in Reshape2 
+```{r}
+library(reshape2)
+pew_tidy <- melt(
+        data = pew,
+        id.vars = "religion",
+        variable.name = "income",
+        value.name = "frequency")
+                
+head(pew_tidy)
+tail(pew_tidy)
+summary(pew_tidy)
+
+```
+Assignment : Split gender and Age from tuborclosis dataset.
+
+Reading TB dataset!
+```{r}
+tb <- read.csv(
+        file = "http://stat405.had.co.nz/data/tb.csv",
+        header = TRUE,
+        stringsAsFactors = FALSE)
+head(tb)
+tail(tb)
+summary(tb)
+```
+
+Making the Data Tidy!
+```{r}
+library(reshape2)
+# Set column newsp as NULL and clean up the rest of the colums
+# gsub is used to identify the pattern and replace it with a new one!
+tb$new_sp = NULL
+names(tb) <- gsub(
+                pattern = "new_sp_",
+                x = names(tb),
+                ignore.case = FALSE,
+                replacement = "")
+head(tb)
+
+# Cleaning up the data ! 
+tb_tidy <- melt(data = tb,
+                na.rm = TRUE,
+                id = c("iso2","year"),
+                variable.name = "gender_age",
+                value.name = "cases"
+                )
+head(tb_tidy)
+tail(tb_tidy)
+summary(tb_tidy)
+
+# splitting Age and Gender!
+library(plyr)
+tb_tidy <- mutate(tb_tidy,
+        gender = sub("^([m|f])(.*)$", "\\1", gender_age),
+        age = sub("^([m|f])(.*)$", "\\2", gender_age),
+        gender_age = NULL
+        )
+tb_tidy <- tb_tidy[c('iso2', 'year', 'gender', 'age', 'cases')]
+
+head(tb_tidy)
+tail(tb_tidy)
+summary(tb_tidy)
+```
+
+
